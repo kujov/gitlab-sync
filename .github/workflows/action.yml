@@ -1,5 +1,8 @@
 name: 'Sync to GitLab'
 description: 'Automatically sync your GitHub repository with GitLab'
+branding:
+  icon: 'arrow-right'
+  color: 'orange'
 inputs:
   gitlab_url:
     description: 'The URL of the GitLab repository (e.g., https://gitlab.com/user/repo.git)'
