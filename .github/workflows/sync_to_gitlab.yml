@@ -1,0 +1,34 @@
+name: Sync to GitLab
+
+on:
+  push
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Push to GitLab
+      run: |
+        export GIT_SSH_COMMAND='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+
+        username=$USERNAME  
+        pat=$GITLAB_PAT     
+        gitlab_repo_url=$GITLAB_URL
+        gitlab_repo_url_with_credentials="https://${username}:${pat}@${gitlab_repo_url/https:\/\/}"
+        
+        git remote add gitlab "$gitlab_repo_url_with_credentials"
+        
+        branch_name=$(echo $GITHUB_REF | sed 's/refs\/heads\///')
+
+        git push gitlab "$branch_name" --force
+
+      env:
+        GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
+        GITLAB_URL: ${{ secrets.GITLAB_URL }}
+        USERNAME: ${{ secrets.USERNAME }}
