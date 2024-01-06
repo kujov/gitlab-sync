@@ -1,6 +1,6 @@
 # GitLab Sync - GitHub Action
 
-**GitLab Sync** is a easy to use github action for synching code to gitlab.
+**GitLab Sync** is a easy to use github action for syncing code to gitlab.
 
 ## My Motivation
 
@@ -31,7 +31,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-    - uses: keninkujovic/gitlab-synch@v1
+    - uses: keninkujovic/gitlab-sync@v1
       with:
         gitlab_url: ${{ secrets.GITLAB_URL }}
         username: ${{ secrets.USERNAME }}
@@ -40,7 +40,7 @@ jobs:
 
 ### Step 3: Push Changes to GitHub
 
-Now you just need to push to GitHub and all the changes will be synched to Gitlab!
+Now you just need to push to GitHub and all the changes will be synced to Gitlab!
 
 ## Inputs
 
