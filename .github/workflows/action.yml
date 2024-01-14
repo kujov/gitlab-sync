@@ -1,32 +1,14 @@
-name: 'Sync to GitLab'
-description: 'Automatically sync your GitHub repository with GitLab'
-branding:
-  icon: 'arrow-right'
-  color: 'orange'
-inputs:
-  gitlab_url:
-    description: 'The URL of the GitLab repository (e.g., https://gitlab.com/user/repo.git)'
-    required: true
-  username:
-    description: 'Your GitLab username'
-    required: true
-  gitlab_pat:
-    description: 'Your GitLab Personal Access Token with required permissions'
-    required: true
-runs:
-  using: 'composite'
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+name: Sync Repo to GitLab
+
+on:
+  push
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: keninkujovic/gitlab-sync@v1.1.1
       with:
-        fetch-depth: 0
-    - name: Push to GitLab
-      run: |
-        export GIT_SSH_COMMAND='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-        gitlab_repo_url=${{ inputs.gitlab_url }}
-        gitlab_repo_url=${gitlab_repo_url#https://}
-        gitlab_repo_url_with_credentials="https://${{ inputs.username }}:${{ inputs.gitlab_pat }}@${gitlab_repo_url}"
-        git remote add gitlab "$gitlab_repo_url_with_credentials"
-        branch_name=$(echo $GITHUB_REF | sed 's/refs\/heads\///')
-        git push gitlab "$branch_name" --force
-      shell: bash
+        gitlab_url: ${{ secrets.GITLAB_URL }}
+        username: ${{ secrets.USERNAME }}
+        gitlab_pat: ${{ secrets.GITLAB_PAT }}
