@@ -31,7 +31,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-    - uses: keninkujovic/gitlab-sync@v1
+    - uses: keninkujovic/gitlab-sync@v1.0.1
       with:
         gitlab_url: ${{ secrets.GITLAB_URL }}
         username: ${{ secrets.USERNAME }}
