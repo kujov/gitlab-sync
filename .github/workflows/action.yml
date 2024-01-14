@@ -23,7 +23,9 @@ runs:
     - name: Push to GitLab
       run: |
         export GIT_SSH_COMMAND='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-        gitlab_repo_url_with_credentials="https://${{ inputs.username }}:${{ inputs.gitlab_pat }}@${{ inputs.gitlab_url }}/https://"
+        gitlab_repo_url=${{ inputs.gitlab_url }}
+        gitlab_repo_url=${gitlab_repo_url#https://}
+        gitlab_repo_url_with_credentials="https://${{ inputs.username }}:${{ inputs.gitlab_pat }}@${gitlab_repo_url}"
         git remote add gitlab "$gitlab_repo_url_with_credentials"
         branch_name=$(echo $GITHUB_REF | sed 's/refs\/heads\///')
         git push gitlab "$branch_name" --force
