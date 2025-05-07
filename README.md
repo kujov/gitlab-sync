@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/gitlab-sync.png" width="40%" alt="GitLab Sync">
+</div>
+
 # GitLab Sync - GitHub Action
 
 **GitLab Sync** is a GitHub Action designed for straightforward synchronization of code from a GitHub repository to a GitLab repository.
