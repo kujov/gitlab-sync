@@ -13,6 +13,10 @@ inputs:
   gitlab_pat:
     description: 'Your GitLab Personal Access Token with required permissions'
     required: true
+  force_push:
+    description: 'Whether to force push to GitLab. Defaults to false.'
+    required: false
+    default: 'false'
 runs:
   using: 'composite'
   steps:
@@ -28,5 +32,9 @@ runs:
         gitlab_repo_url_with_credentials="https://${{ inputs.username }}:${{ inputs.gitlab_pat }}@${gitlab_repo_url}"
         git remote add gitlab "$gitlab_repo_url_with_credentials"
         branch_name=$(echo $GITHUB_REF | sed 's/refs\/heads\///')
-        git push gitlab "$branch_name" --force
+        push_command="git push gitlab $branch_name"
+        if [[ "${{ inputs.force_push }}" == "true" ]]; then
+          push_command="$push_command --force"
+        fi
+        $push_command
       shell: bash
