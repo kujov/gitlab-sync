@@ -2,13 +2,15 @@
   <img src="assets/gitlab-sync.png" width="40%" alt="GitLab Sync">
 </div>
 
-# GitLab Sync - GitHub Action
+<div align="center">
+  <h1>GitLab Sync - GitHub Action</h1>
 
-**GitLab Sync** is a GitHub Action designed for straightforward synchronization of code from a GitHub repository to a GitLab repository.
+  <p><strong>GitLab Sync</strong> is a GitHub Action designed for straightforward synchronization of code from a GitHub repository to a GitLab repository.</p>
+</div>
 
 ## Motivation
 
-This GitHub Action was developed to provide a reliable and easy-to-use solution for syncing repositories between GitHub and GitLab, addressing common challenges found in existing solutions.
+This GitHub Action was developed to provide a reliable and easy-to-use solution for syncing repositories between GitHub and GitLab, addressing common challenges found in existing solutions. It's designed to be straightforward to set up and use, without the need for any paid services or complex configurations.
 
 ## How to Use
 
