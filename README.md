@@ -66,6 +66,7 @@ The action supports the following input parameters:
 | `username`   | Your GitLab username.                                                                                      | Yes      | N/A     |
 | `gitlab_pat` | Your GitLab Personal Access Token. Must have permissions to write (`write_repository` scope) to the target repository. | Yes      | N/A     |
 | `force_push` | Whether to force push to GitLab. If `true`, overwrites the destination branch. Use with caution.           | No       | `false` |
+| `git_lfs`    | Whether to sync Git LFS objects to GitLab. Requires LFS to be enabled on the target GitLab repository.    | No       | `false` |
 
 ## Feedback and Contributions
 

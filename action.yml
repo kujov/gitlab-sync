@@ -17,6 +17,10 @@ inputs:
     description: 'Whether to force push to GitLab. Defaults to false.'
     required: false
     default: 'false'
+  git_lfs:
+    description: 'Whether to sync Git LFS objects to GitLab. Defaults to false.'
+    required: false
+    default: 'false'
 runs:
   using: 'composite'
   steps:
@@ -25,6 +29,7 @@ runs:
       with:
         fetch-depth: 0
         persist-credentials: false
+        lfs: ${{ inputs.git_lfs }}
     - name: Validate inputs
       run: |
         errors=()
@@ -62,6 +67,9 @@ runs:
         gitlab_repo_url_with_credentials="https://${{ inputs.username }}:${{ inputs.gitlab_pat }}@${gitlab_repo_url}"
         git remote add gitlab "$gitlab_repo_url_with_credentials"
         branch_name=$(echo $GITHUB_REF | sed 's/refs\/heads\///')
+        if [[ "${{ inputs.git_lfs }}" == "true" ]]; then
+          git lfs push --all gitlab
+        fi
         push_command="git push gitlab $branch_name"
         if [[ "${{ inputs.force_push }}" == "true" ]]; then
           push_command="$push_command --force"
