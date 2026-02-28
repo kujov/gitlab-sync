@@ -1,81 +1,133 @@
 <div align="center">
-  <img src="assets/gitlab-sync.png" width="40%" alt="GitLab Sync">
+  <img src="assets/gitlab-sync.png" width="35%" alt="GitLab Sync">
+  <h1>GitLab Sync</h1>
+  <p>A GitHub Action for automatically mirroring your GitHub repository to GitLab.</p>
+
+  [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-GitLab%20Sync-blue?logo=github)](https://github.com/marketplace/actions/sync-to-gitlab)
+  [![Latest Release](https://img.shields.io/github/v/release/kujov/gitlab-sync)](https://github.com/kujov/gitlab-sync/releases)
+  [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 </div>
 
-<div align="center">
-  <h1>GitLab Sync - GitHub Action</h1>
+---
 
-  <p><strong>GitLab Sync</strong> is a GitHub Action designed for seamless and automated synchronization of code from a GitHub repository to a GitLab repository.</p>
-</div>
+## Overview
 
-## Motivation
+GitLab Sync pushes your repository to GitLab on every push. It handles the full checkout, validation, and push — including full git history and optional Git LFS objects.
 
-This GitHub Action provides a free, simple, and reliable method for mirroring repositories from GitHub to GitLab. It's designed to be straightforward to implement and operate effectively.
+**Features:**
+- Full history sync (`fetch-depth: 0`)
+- Optional Git LFS support
+- Optional force push
+- Clear error messages for misconfigured secrets
 
-## How to Use
+---
 
-Integrate GitLab Sync into your workflow by following these steps:
+## Quick Start
 
-### 1. Configure GitHub Secrets
+### 1. Add Secrets
 
-Before using the action, you must add the following secrets to your GitHub repository (`Settings > Secrets and variables > Actions`):
+In your GitHub repository go to `Settings > Secrets and variables > Actions` and add:
 
--   `GITLAB_URL`: The HTTPS URL of your target GitLab repository (e.g., `https://gitlab.com/yourusername/yourrepo.git`).
--   `USERNAME`: Your GitLab username.
--   `GITLAB_PAT`: Your GitLab Personal Access Token. Ensure this token has `write_repository` scope to push to the repository.
+| Secret | Description |
+|--------|-------------|
+| `GITLAB_URL` | Full HTTPS URL of your GitLab repo — e.g. `https://gitlab.com/user/repo.git` |
+| `USERNAME` | Your GitLab username |
+| `GITLAB_PAT` | A GitLab Personal Access Token with `write_repository` scope |
 
-### 2. Create a Workflow File
+> **Tip:** Generate a GitLab PAT at `User Settings > Access Tokens`. Minimum required scope is `write_repository`.
 
-Add a workflow file to your GitHub repository (e.g., `.github/workflows/sync-to-gitlab.yml`):
+### 2. Add a Workflow
+
+Create `.github/workflows/sync-to-gitlab.yml` in your repository:
 
 ```yaml
-name: Sync Repository to GitLab
+name: Sync to GitLab
 
 on:
-  push
+  push:
+    branches: [main]
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-    - name: Sync to GitLab
-      uses: keninkujovic/gitlab-sync@2.1.3
-      with:
-        gitlab_url: ${{ secrets.GITLAB_URL }}
-        username: ${{ secrets.USERNAME }}
-        gitlab_pat: ${{ secrets.GITLAB_PAT }}
+      - name: Sync to GitLab
+        uses: kujov/gitlab-sync@main
+        with:
+          gitlab_url: ${{ secrets.GITLAB_URL }}
+          username: ${{ secrets.USERNAME }}
+          gitlab_pat: ${{ secrets.GITLAB_PAT }}
 ```
 
-**Important Considerations:**
+That's it, every push to `main` will mirror to your GitLab repository.
 
--   **Branch Specificity**: It's highly recommended to specify which branches trigger the sync (e.g., `main`, `master`) in the `on: push: branches:` section of your workflow to avoid unintended syncs.
--   **`actions/checkout`**: Always include `actions/checkout@vX` (preferably the latest version) before this action to ensure your repository's code is available.
--   **`fetch-depth: 0`**: Using `fetch-depth: 0` with `actions/checkout` is crucial for ensuring the entire Git history is fetched. This is often necessary for a clean and successful synchronization, especially if you need to sync tags or ensure branch histories are complete.
+---
 
-### 3. Push Changes to GitHub
+## Configuration
 
-Once the workflow is configured, any push to the specified branches in your GitHub repository will automatically trigger the synchronization process to your GitLab repository.
+### Inputs
 
-## Action Inputs
+| Input | Description | Required | Default |
+|-------|-------------|----------|---------|
+| `gitlab_url` | HTTPS URL of the target GitLab repository | Yes | — |
+| `username` | Your GitLab username | Yes | — |
+| `gitlab_pat` | GitLab PAT with `write_repository` scope | Yes | — |
+| `force_push` | Force push to GitLab, overwriting remote history | No | `false` |
+| `git_lfs` | Also push Git LFS objects to GitLab | No | `false` |
 
-The action supports the following input parameters:
+### Sync all branches
 
-| Parameter    | Description                                                                                                | Required | Default |
-|--------------|------------------------------------------------------------------------------------------------------------|----------|---------|
-| `gitlab_url` | The HTTPS URL of the target GitLab repository (e.g., `https://gitlab.com/yourusername/yourrepo.git`).      | Yes      | N/A     |
-| `username`   | Your GitLab username.                                                                                      | Yes      | N/A     |
-| `gitlab_pat` | Your GitLab Personal Access Token. Must have permissions to write (`write_repository` scope) to the target repository. | Yes      | N/A     |
-| `force_push` | Whether to force push to GitLab. If `true`, overwrites the destination branch. Use with caution.           | No       | `false` |
+Change the trigger to sync on pushes to any branch:
 
-## Feedback and Contributions
+```yaml
+on:
+  push
+```
 
-Feedback, bug reports, and contributions are highly valued and welcome! Please feel free to:
+### Force push
 
--   Open an issue for any bugs or feature requests.
--   Submit a pull request with improvements.
+Use with caution — this overwrites the GitLab repository history:
 
-If you find this action useful, please consider starring the repository!
+```yaml
+      - uses: kujov/gitlab-sync@main
+        with:
+          gitlab_url: ${{ secrets.GITLAB_URL }}
+          username: ${{ secrets.USERNAME }}
+          gitlab_pat: ${{ secrets.GITLAB_PAT }}
+          force_push: true
+```
 
-## Disclaimer
+### Git LFS
 
-This GitHub Action was developed to fulfill a specific synchronization need. While it has been tested, users should thoroughly verify its functionality and implications in their own environments before deployment to critical repositories. Use this action at your own discretion. The maintainers are not responsible for any data loss or unintended consequences.
+To also sync LFS objects, enable `git_lfs`. Make sure LFS is enabled on your GitLab repository before using this.
+
+```yaml
+      - uses: kujov/gitlab-sync@main
+        with:
+          gitlab_url: ${{ secrets.GITLAB_URL }}
+          username: ${{ secrets.USERNAME }}
+          gitlab_pat: ${{ secrets.GITLAB_PAT }}
+          git_lfs: true
+```
+
+---
+
+## Troubleshooting
+
+**Authentication failed**
+Verify `GITLAB_PAT` is valid and has `write_repository` scope. Tokens expire — check `User Settings > Access Tokens` on GitLab.
+
+**Push rejected (non-fast-forward)**
+The GitLab repository has commits not in GitHub. Use `force_push: true` to overwrite, or manually reconcile histories.
+
+**LFS objects not syncing**
+Ensure Git LFS is enabled on the GitLab repository (`Settings > General > Visibility > Git LFS`) and that `git_lfs: true` is set.
+
+**Invalid `gitlab_url` format**
+The URL must be a full HTTPS URL ending in `.git`, e.g. `https://gitlab.com/user/repo.git`.
+
+---
+
+## Contributing
+
+Issues and pull requests are welcome. If this action is useful to you, consider starring the repository.
