@@ -31,20 +31,24 @@ runs:
         persist-credentials: false
         lfs: ${{ inputs.git_lfs }}
     - name: Validate inputs
+      env:
+        GITLAB_URL: ${{ inputs.gitlab_url }}
+        USERNAME: ${{ inputs.username }}
+        GITLAB_PAT: ${{ inputs.gitlab_pat }}
       run: |
         errors=()
 
-        if [[ -z "${{ inputs.gitlab_url }}" ]]; then
+        if [[ -z "$GITLAB_URL" ]]; then
           errors+=("gitlab_url is not set. Please add GITLAB_URL to your repository secrets.")
-        elif [[ ! "${{ inputs.gitlab_url }}" =~ ^https?://[^/]+/.+ ]]; then
+        elif [[ ! "$GITLAB_URL" =~ ^https?://[^/]+/.+ ]]; then
           errors+=("gitlab_url format is invalid. Expected: https://gitlab.com/user/repo.git")
         fi
 
-        if [[ -z "${{ inputs.username }}" ]]; then
+        if [[ -z "$USERNAME" ]]; then
           errors+=("username is not set. Please add USERNAME to your repository secrets.")
         fi
 
-        if [[ -z "${{ inputs.gitlab_pat }}" ]]; then
+        if [[ -z "$GITLAB_PAT" ]]; then
           errors+=("gitlab_pat is not set. Please add GITLAB_PAT to your repository secrets.")
         fi
 
@@ -61,17 +65,23 @@ runs:
         echo "All inputs validated successfully."
       shell: bash
     - name: Push to GitLab
+      env:
+        GITLAB_URL: ${{ inputs.gitlab_url }}
+        USERNAME: ${{ inputs.username }}
+        GITLAB_PAT: ${{ inputs.gitlab_pat }}
+        FORCE_PUSH: ${{ inputs.force_push }}
+        GIT_LFS: ${{ inputs.git_lfs }}
       run: |
-        gitlab_repo_url=${{ inputs.gitlab_url }}
-        gitlab_repo_url=${gitlab_repo_url#https://}
-        gitlab_repo_url_with_credentials="https://${{ inputs.username }}:${{ inputs.gitlab_pat }}@${gitlab_repo_url}"
+        gitlab_repo_url="${GITLAB_URL#https://}"
+        gitlab_repo_url_with_credentials="https://${USERNAME}:${GITLAB_PAT}@${gitlab_repo_url}"
+        echo "::add-mask::$gitlab_repo_url_with_credentials"
         git remote add gitlab "$gitlab_repo_url_with_credentials"
-        branch_name=$(echo $GITHUB_REF | sed 's/refs\/heads\///')
-        if [[ "${{ inputs.git_lfs }}" == "true" ]]; then
+        branch_name=$(echo "$GITHUB_REF" | sed 's/refs\/heads\///')
+        if [[ "$GIT_LFS" == "true" ]]; then
           git lfs push --all gitlab
         fi
         push_command="git push gitlab $branch_name"
-        if [[ "${{ inputs.force_push }}" == "true" ]]; then
+        if [[ "$FORCE_PUSH" == "true" ]]; then
           push_command="$push_command --force"
         fi
         $push_command
